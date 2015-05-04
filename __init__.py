@@ -3,7 +3,7 @@ from threading import Lock
 
 class Landlord(object):
 
-    def __init__(self, create_app):
+    def __init__(self, create_app, subdomains=[]):
         """ Initialize the application dispatcher. """
 
         # The function to call when creating a new app
@@ -15,11 +15,18 @@ class Landlord(object):
         # Instances of already created applications
         self.instances = {}
 
-    def get_application(self, host):
+        # Subdomains to strip out of the domain
+        self.subdomains = subdomains
+
+    def get_application(self, host, subdomains=[]):
         """ Return an initialized application for a given host. """
 
         # Extract the hostname from the port
         host = host.split(':')[0]
+
+        # Strip the subdomains from the hostname
+        for subdomain in self.subdomains:
+            host = host.replace('{}.'.format(subdomain), '')
 
         with self.lock:
             # Get the correct app from the instances list
